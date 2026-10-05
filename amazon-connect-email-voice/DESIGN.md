@@ -19,10 +19,18 @@ poor choice for this course: claiming phone numbers is not supported there. The 
 the region once, in their AWS configuration, and every later lesson and check reads it from
 there rather than from a literal.
 
-**The instance is created once and kept.** Amazon Connect limits how many instances an
-account can create and delete in 30 days, and a learner who hits the limit waits up to a
-month. Destroying and recreating the instance to "start clean" is never the repair for a
-mistake in this course.
+**The instance is created once and kept.** Recreating it loses the alias, the email domain,
+the contact history and the console step that enabled email, which must then be done again.
+Amazon Connect also counts instances created or deleted per 30 days (100, at the time of
+writing), so repeated recreation has a ceiling. Destroying and recreating the instance to
+"start clean" is never the repair for a mistake in this course.
+
+**One person, two logins.** Admin work in the Connect admin website — designing flows,
+contact search, reading routing profiles — uses "Log in for emergency access" from the
+instance's overview in the AWS console. The agent user created in lesson 00 has only the
+`Agent` security profile and is used for taking contacts. Keeping the two apart is least
+privilege, and it keeps visible the difference between what a user may *do* (security
+profile) and what they are *offered* (routing profile).
 
 **The instance alias follows one convention**, `<learner-prefix>-tutorail-cc`, because an
 alias is globally unique and becomes the instance's email domain,
@@ -82,8 +90,11 @@ deploy. The placeholder is CloudFormation's own `${Name}` form — `${CourseQueu
 map of names to values. One flow file, one placeholder convention, applied the same way every
 time.
 
-A console edit that is not exported is overwritten by the next deploy. That is intended: the
-designer is where a flow is drawn, the file is what the flow *is*.
+A console edit that is not exported is overwritten by the next deploy **that changes the flow
+file**. CloudFormation updates a resource only when its template changes, so the edit survives
+any number of deploys that leave the file alone and then vanishes, silently, on the first that
+does not. That delay is what makes it dangerous. The rule is the same either way: the designer
+is where a flow is drawn, the file is what the flow *is*.
 
 **What breaks if a lesson contradicts this:** a flow with a hard-coded ARN deploys only into
 the account it was exported from, and breaks the first time a queue is replaced. A learner
