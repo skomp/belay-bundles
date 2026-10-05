@@ -119,3 +119,6 @@ supplies:
   - from: supplies/contact_centre/__init__.py
     to: contact_centre/__init__.py
     describe: Makes contact_centre a Python package
+  - from: supplies/contact_centre/core_stack.py
+    to: contact_centre/core_stack.py
+    describe: "ConnectCore, the long-lived stack, still empty: the instance, the email address and the phone number go here"
