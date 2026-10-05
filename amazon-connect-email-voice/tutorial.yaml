@@ -128,3 +128,6 @@ supplies:
   - from: supplies/cdk.json
     to: cdk.json
     describe: CDK settings that point at app.py; nothing in this course changes it
+  - from: supplies/requirements.txt
+    to: requirements.txt
+    describe: The CDK libraries this app deploys with
