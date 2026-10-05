@@ -7,6 +7,9 @@ supplies:
   - from: lessons/04-lambda-enrichment/customers.json
     to: data/customers.json
     describe: Fictional customer records for the lookup table; writing seed data teaches nothing
+  - from: lessons/04-lambda-enrichment/load_customers.py
+    to: tools/load_customers.py
+    describe: Loads data/customers.json into your table, and adds or removes your own record
 ---
 
 ## Purpose
