@@ -131,3 +131,6 @@ supplies:
   - from: supplies/requirements.txt
     to: requirements.txt
     describe: The CDK libraries this app deploys with
+  - from: supplies/requirements-dev.txt
+    to: requirements-dev.txt
+    describe: pytest and boto3 on top of the CDK libraries, for the template tests and the live checks
