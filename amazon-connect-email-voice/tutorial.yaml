@@ -15,6 +15,7 @@ style: [project-driven, interactive]
 
 lessons:
   - lessons/00-instance-and-first-agent.md
+  - lessons/01-first-email-contact.md
 
 workspace_kind: new-repository
 tutor_owned: [tutorial/STATE.md, tutorial/DESIGN.md]
