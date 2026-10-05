@@ -129,6 +129,23 @@ as a lesson-scope supply clears that finding; but the tool checks validity *befo
 edit and refuses. The way out is the format's other remedy — have the `LESSON.md` name its
 material file — and then declare it. Filed as `tutorail-authoring#28`.
 
+## Two toolkit habits that save a renumbering
+
+Learned building `amazon-connect-email-voice` on 2026-10-05.
+
+**Number the spec's arc from `00`.** `lesson.py add --position` is 0-based and the toolkit
+names the first lesson `00-…`, like every bundle here. A spec numbered from `01` leaves
+every "lesson 05" in the spec, `COURSE.md` and `DESIGN.md` off by one, and a regex that
+shifts them back misses numbers that sit before a full stop.
+
+**Each toolkit call needs a clean tree, so commit between calls.** `lesson.py add` and
+`supplies.py add` refuse a dirty working tree. Adding nine lessons or fifteen supplies is
+nine or fifteen add-and-commit rounds; a small driver script that runs the command, prints
+the validator line and commits only on success does it in one go and stops at the first
+refusal. Declare lesson-scope supplies only after each `LESSON.md` names its material file
+by its own basename (`customers.json`, not only `data/customers.json`) — check 6 matches the
+name relative to the lesson folder, and `supplies.py` refuses an invalid bundle.
+
 ## A total is not a grade
 
 A course's score is comparable **against its own lessons only**. The figure tracks how
