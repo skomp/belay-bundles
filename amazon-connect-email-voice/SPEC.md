@@ -113,6 +113,9 @@ learner's explanation and a prediction made before the test, which no API call c
 | from | to | describe | scope |
 |---|---|---|---|
 | `supplies/app.py` | `app.py` | The CDK entry point with two empty stacks — the long-lived one and the one you redeploy freely — so lesson 00 starts at the instance and not at CDK boilerplate | `tutorial.yaml` |
+| `supplies/contact_centre/__init__.py` | `contact_centre/__init__.py` | Makes contact_centre a Python package | `tutorial.yaml` |
+| `supplies/contact_centre/core_stack.py` | `contact_centre/core_stack.py` | ConnectCore, the long-lived stack, still empty | `tutorial.yaml` |
+| `supplies/contact_centre/routing_stack.py` | `contact_centre/routing_stack.py` | ConnectRouting, the stack redeployed freely, still empty | `tutorial.yaml` |
 | `supplies/cdk.json` | `cdk.json` | CDK settings that point at `app.py`; nothing in this course changes it | `tutorial.yaml` |
 | `supplies/requirements.txt` | `requirements.txt` | The CDK libraries this app deploys with | `tutorial.yaml` |
 | `supplies/requirements-dev.txt` | `requirements-dev.txt` | pytest and boto3, for the template tests and the live checks | `tutorial.yaml` |
@@ -122,6 +125,7 @@ learner's explanation and a prediction made before the test, which no API call c
 | `supplies/checks-toolchain.py` | `checks/toolchain.py` | The check that confirms your toolchain and AWS credentials before you start | `tutorial.yaml` |
 | `supplies/checks-live.py` | `checks/live.py` | The checks that read your deployed contact centre and its contacts back from AWS | `tutorial.yaml` |
 | `lessons/04-lambda-enrichment/customers.json` | `data/customers.json` | A handful of fictional customer records, with example-domain email addresses and reserved phone numbers, for the lookup table — writing seed data teaches nothing | `04-lambda-enrichment` |
+| `lessons/04-lambda-enrichment/load_customers.py` | `tools/load_customers.py` | Loads data/customers.json into the table, and adds or removes the learner's own record | `04-lambda-enrichment` |
 | `lessons/05-following-a-contact/scenarios.py` | `tools/scenarios.py` | Creates three test email contacts through the Connect API, each built to take a different path through your flow, for you to explain | `05-following-a-contact` |
 
 The check scripts are supplied for the reason `pico-ps2-usb-adapter` gives: writing a Connect
@@ -132,6 +136,12 @@ learner adds a record with their own email address and phone number to the table
 own account; the lesson says so, and says that this is their personal data in their account
 and is deleted at teardown. Their caller ID will usually be a non-US number in E.164 form,
 which is exactly the case `#lambda-contract`'s normalisation has to handle.
+
+**`lessons/05-following-a-contact/ANSWERS.md` is not a supply.** It holds the expected
+outcomes of the three scenarios for the tutor. It is never placed in the workspace, but it
+travels in the instance's `lessons/` like any lesson material, so a learner who goes looking
+can read it. That is the same trade every answer key in a shipped course makes, and the
+lesson tells the tutor never to show or paraphrase it.
 
 **Not supplied, and deliberately so:** every construct, flow and Lambda. Installing the CDK
 CLI, creating the virtualenv, configuring AWS credentials and running `cdk bootstrap` need

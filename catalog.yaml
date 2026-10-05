@@ -16,6 +16,22 @@
 
 catalog_version: 1
 tutorials:
+  - id: amazon-connect-email-voice
+    title: "Amazon Connect: an Email-and-Voice Contact Centre as Code"
+    description: >
+      Build an Amazon Connect contact centre with AWS CDK in Python: an inbound email
+      address first, then a phone line on the same queues and routing, with a Lambda
+      that recognises the customer on either channel.
+    subjects: [aws, amazon-connect, contact-centre, infrastructure-as-code, lambda]
+    aliases: [connect, aws-connect, call-centre, call-center, contact-center, ivr, email-routing, cdk]
+    level: intermediate
+    style: [project-driven, interactive]
+    scope: "9 lessons; a few weeks"
+    optional_lesson_count: 0
+    workspace_kind: new-repository
+    source:
+      type: local
+      path: amazon-connect-email-voice
   - id: cpp-png-inspector
     title: "C++ for C Programmers: Build a PNG Inspector"
     description: >

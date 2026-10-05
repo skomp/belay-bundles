@@ -45,6 +45,7 @@ The mechanical rule:
 
 | id | Title | Subjects | Level |
 |---|---|---|---|
+| `amazon-connect-email-voice` | Amazon Connect: an Email-and-Voice Contact Centre as Code | aws, amazon-connect, contact-centre, infrastructure-as-code, lambda | intermediate |
 | `cpp-png-inspector` | C++ for C Programmers: Build a PNG Inspector | cpp, c, systems-programming, binary-formats, cmake | beginner-to-intermediate |
 | `durable-event-broker` | Build a Durable Event Broker in Go | go, event-streaming, storage, distributed-systems | intermediate-to-advanced |
 | `orange-pi-network-appliance` | Build a Linux Network Appliance on the Orange Pi Zero 3 | linux-networking, routing, nat, wifi, bluetooth, systemd, embedded-linux | intermediate |
