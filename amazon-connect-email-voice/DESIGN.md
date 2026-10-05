@@ -9,7 +9,7 @@ tutor appends to it as the learner makes decisions during the course.
 The instance uses **`CONNECT_MANAGED`** identity: users live in Connect itself, and no
 directory or SAML provider is needed.
 
-**One region, chosen in lesson 01 and used for everything.** It must support the Amazon
+**One region, chosen in lesson 00 and used for everything.** It must support the Amazon
 Connect email channel. An EU region is a reasonable choice for a learner in the EU, because
 the test contacts carry the learner's own email address and phone number. The learner
 records the region once, and every later lesson and check reads it from there rather than
@@ -29,7 +29,7 @@ international call from their own phone for each test.
 
 **What breaks if a lesson contradicts this:** identity mode and alias cannot change after
 creation, so a wrong choice means deleting the instance and every contact in it. A region
-without email stalls lesson 02 with no fix short of starting over. A lesson that assumes a
+without email stalls lesson 01 with no fix short of starting over. A lesson that assumes a
 local number reintroduces the regulatory stall at lesson 07. *Resolved.*
 
 ## Stack split {#stack-split}
@@ -79,8 +79,8 @@ who edits in the console and then deploys loses the edit and learns to distrust 
 - **Errors raise.** The flow's error branch handles a failure; the function never returns a
   fake customer to paper over one.
 
-**What breaks if a lesson contradicts this:** lesson 08 reuses the function unchanged for
-voice. A contract shaped around email in lesson 05 forces a second Lambda or a breaking change
+**What breaks if a lesson contradicts this:** lesson 07 reuses the function unchanged for
+voice. A contract shaped around email in lesson 04 forces a second Lambda or a breaking change
 mid-course. Connect also rejects a nested response, so a richer shape fails at run time, not
 at deploy. *Resolved.*
 
@@ -88,6 +88,6 @@ at deploy. *Resolved.*
 
 - **Custom email domain.** The course uses the instance's automatic `email.connect.aws`
   domain. Moving to a domain verified in Amazon SES is explained and never built.
-- **Agent concurrency numbers.** Lesson 09 asks the learner to choose and defend the
+- **Agent concurrency numbers.** Lesson 08 asks the learner to choose and defend the
   per-channel concurrency of the routing profile. The course does not prescribe values; the
   learner's reasoning is the point.

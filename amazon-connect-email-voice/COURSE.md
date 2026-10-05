@@ -46,32 +46,32 @@ email actually produced. It never advances on "it works for me".
 
 ### Chapter 1 — a contact centre that exists
 
-- **01 — Instance and first agent.** Deploy the instance from code, create an agent, log in
+- **00 — Instance and first agent.** Deploy the instance from code, create an agent, log in
   and go Available.
 
 ### Chapter 2 — email, end to end
 
-- **02 — First email contact.** An email address, an inbound flow, and your own email
+- **01 — First email contact.** An email address, an inbound flow, and your own email
   answered by your own agent.
-- **03 — Hours, queues, routing profiles.** Route on purpose instead of into the default
+- **02 — Hours, queues, routing profiles.** Route on purpose instead of into the default
   queue, with an out-of-hours branch.
-- **04 — Flow logic for email.** Attributes, branching, an automatic acknowledgement and a
+- **03 — Flow logic for email.** Attributes, branching, an automatic acknowledgement and a
   second queue.
-- **05 — Lambda enrichment.** The flow asks a Lambda who is writing; known customers go to
+- **04 — Lambda enrichment.** The flow asks a Lambda who is writing; known customers go to
   the priority queue.
 
 ### Chapter 3 — seeing what happened
 
-- **06 — Following a contact.** Explain three contacts you did not route by hand, from the
+- **05 — Following a contact.** Explain three contacts you did not route by hand, from the
   contact record and the logs.
 
 ### Chapter 4 — voice on the same routing
 
-- **07 — A phone line.** Claim a US number and route calls through the hours and queues email
+- **06 — A phone line.** Claim a US number and route calls through the hours and queues email
   already uses.
-- **08 — Voice menu and caller lookup.** A menu, timeouts, and the same Lambda recognising
+- **07 — Voice menu and caller lookup.** A menu, timeouts, and the same Lambda recognising
   callers.
-- **09 — One agent, two channels.** Decide what an agent is offered when a call and emails
+- **08 — One agent, two channels.** Decide what an agent is offered when a call and emails
   wait at once.
 
 ## How long it takes
@@ -81,10 +81,10 @@ part; a new instance takes a few minutes to become usable.
 
 | Segment | Time |
 |---|---|
-| Chapter 1 — toolchain, bootstrap, instance and agent (01) | 1–1.5 h |
-| Chapter 2 — email end to end (02–05) | 3–4.5 h |
-| Chapter 3 — following a contact (06) | 0.75–1 h |
-| Chapter 4 — voice (07–09) | 2.5–3.5 h |
+| Chapter 1 — toolchain, bootstrap, instance and agent (00) | 1–1.5 h |
+| Chapter 2 — email end to end (01–04) | 3–4.5 h |
+| Chapter 3 — following a contact (05) | 0.75–1 h |
+| Chapter 4 — voice (06–08) | 2.5–3.5 h |
 | **Whole course** | **≈ 7–10.5 h** |
 
 ## Coverage
