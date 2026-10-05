@@ -3,6 +3,10 @@ id: 04-lambda-enrichment
 title: Lambda enrichment
 design_refs: [lambda-contract, flow-round-trip]
 validators: [cdk-synth, pytest, lambda-enriches]
+supplies:
+  - from: lessons/04-lambda-enrichment/customers.json
+    to: data/customers.json
+    describe: Fictional customer records for the lookup table; writing seed data teaches nothing
 ---
 
 ## Purpose
