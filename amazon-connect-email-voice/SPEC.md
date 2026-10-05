@@ -2,7 +2,7 @@
 
 **Bundle id:** `amazon-connect-email-voice`
 **Scale:** standard — nine lessons, several sittings, chapters without milestone ceremony
-**Status:** draft, pending author approval
+**Status:** approved by the author 2026-10-05
 **Date:** 2026-10-05
 
 ## The learner
