@@ -102,9 +102,11 @@ code and the subscriber number, with no spaces, no leading zero for the trunk pr
 punctuation, for example `+4917012345678`. The seed records use reserved numbers. To be
 recognised, you add a record with your own number using `tools/load_customers.py` (supplied in
 lesson `04-lambda-enrichment`):
-`tools/load_customers.py --add-endpoint <your number in E.164> --tier gold --name "<a name>"`.
-This is your personal data, in your own account. It is deleted at teardown (`COURSE.md`, *When
-you are finished*), and you remove it yourself with `--remove-endpoint`.
+`python3 tools/load_customers.py --add-endpoint <your number in E.164> --tier gold --name
+"<a name>"`. Use a name in the form your display-name experiment in lesson
+`04-lambda-enrichment` showed survives the trip to Connect. This is your personal data, in your
+own account. It is deleted at teardown (`COURSE.md`, *When you are finished*), and you remove it
+yourself with `--remove-endpoint`.
 
 Two things can go wrong here, and both look like "the lookup said unknown". First, the form of
 the number. The number you know as `0170 1234567`, or `+49 170 1234567` with spaces, is not the
@@ -197,10 +199,10 @@ should take the success branch with an empty result. Have them open the Lambda's
 invocation, find `Details.ContactData.CustomerEndpoint.Address` and `Channel`, and compare the
 number with what they wrote down.
 
-Now add their record: `tools/load_customers.py --add-endpoint <their E.164> --tier gold --name
-"<their name>"`. Before calling again, have them read what the loader stored (in the table, or in
-the loader's code) and what the function will compute from the logged address. Are the two
-strings the same? If they are, call and expect a match. If they are not, this is the
+Now add their record: `python3 tools/load_customers.py --add-endpoint <their E.164> --tier gold
+--name "<their name>"`. Before calling again, have them read what the loader stored (in the
+table, or in the loader's code) and what the function will compute from the logged address.
+Are the two strings the same? If they are, call and expect a match. If they are not, this is the
 normalisation lesson. Ask where the fix belongs. If the answer is "in the flow", ask what the email
 path, or the next flow, would then do differently, and bring them back to the function. Any fix
 goes into the function's normaliser with a unit test that covers the logged form, and the email

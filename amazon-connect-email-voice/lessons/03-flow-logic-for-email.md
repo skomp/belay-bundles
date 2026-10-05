@@ -176,8 +176,9 @@ altogether; choosing them from a dropdown means a placeholder.
 - **Channel support per block**: Play prompt takes Error on email; Get customer input does not
   support email.
 - **A second queue is not reachable until the routing profile lists it** on the email channel.
-- **Placeholders, not ARNs**, in `flows/inbound-email.json`, enforced by a test the learner
-  writes.
+- **Placeholders, not ARNs**, in `flows/inbound-email.json`, enforced by the guard test the
+  learner wrote in lesson `01-first-email-contact`, and extended here so that every
+  placeholder in the file has a value in the `Fn.sub` map and every map entry is used.
 
 ## Constraints
 
@@ -196,8 +197,10 @@ altogether; choosing them from a dropdown means a placeholder.
   inbound flow only. The Default outbound flow is not modified.
 - The acknowledgement's Error branch continues to routing; a failed acknowledgement never
   strands the contact.
-- `flows/inbound-email.json` contains no literal `arn:aws:` string. A pytest test in `tests/`
-  asserts this, and the test is written before the export it guards.
+- `flows/inbound-email.json` contains no literal `arn:` string. The guard test the learner
+  wrote in lesson `01-first-email-contact` asserts this; it is not written a second time. It is
+  extended, before the export it guards, so that the set of `${Name}` placeholders in the file
+  and the set of keys in the `Fn.sub` map are the same.
 - No Lambda yet. Customer lookup is lesson `04-lambda-enrichment`.
 
 ## Suggested progression
@@ -209,12 +212,15 @@ Design on paper first, then in the stack, then in the designer.
    block cannot match case-insensitively, so the learner either lists the variants they accept
    or decides that only one spelling counts — and records which. Write down the `route_reason`
    values for every path, including out-of-hours.
-2. **Write the guard test.** A pytest test that reads `flows/inbound-email.json` and fails if
-   the text contains `arn:aws:`. Run the suite: it should pass on the current file if lesson
-   `01-first-email-contact` was done properly, and the learner now has a tripwire for this
-   lesson's export. A second assertion worth adding: every `${Name}` in the file is a key in the
-   substitution map the stack passes to `Fn.sub` — a typo in a placeholder is otherwise found
-   only at deploy.
+2. **Extend the guard test.** The learner already has a test from lesson
+   `01-first-email-contact` that fails if `flows/inbound-email.json` contains an ARN. Run the
+   suite first: it should pass on the current file. Then the learner adds the check that test
+   does not make: every `${Name}` placeholder in the file is a key in the substitution map the
+   stack passes to `Fn.sub`, **and** every key in the map appears in the file. Ask what each
+   direction catches — a typo in a placeholder, otherwise found only at deploy; a map entry left
+   behind after a block was removed. The learner decides how the test reads the map from the
+   stack code without duplicating it, and makes the test fail once on purpose (for example by
+   misspelling one placeholder in the file, then putting it back) to see that it can.
 3. **Add the priority queue** in `ConnectRouting` with output `PriorityQueueId`, add it to the
    routing profile on the email channel, add `PriorityQueueArn` to the placeholder map. Extend
    the template tests: two queues, the routing profile lists both, the output exists. Deploy
@@ -238,11 +244,13 @@ Design on paper first, then in the stack, then in the designer.
    branch, and ask what the email-capable equivalent is.
 6. **Export and replace.** Export the flow, write it over `flows/inbound-email.json`, and run
    the tests before replacing anything.
-   *Instructive failure, and the point of step 2:* the export contains the priority queue's ARN
+   *Planned failure, and the point of step 2:* the export contains the priority queue's ARN
    (and, if the From address was chosen manually from the dropdown, the email address's). The
-   guard test fails. The learner replaces each with its placeholder — or, for the From address,
-   switches to the dynamic System email address — until the suite passes and `cdk synth`
-   succeeds. Deploy.
+   lesson 01 guard test fails on it — the learner watches the test they already own catch the
+   new ARN, and reads which line it names. The learner replaces each with its placeholder — or,
+   for the From address, switches to the dynamic System email address. If a new placeholder is
+   not yet in the `Fn.sub` map, the extended test from step 2 fails next. Continue until the
+   suite passes and `cdk synth` succeeds. Deploy.
 7. **Test both ways.** The learner sends two emails from their own mailbox during hours: one
    whose subject matches the rule, one that does not. In the agent workspace both are offered;
    the acknowledgement arrives in the mailbox (or demonstrably does not, and the learner says
@@ -253,8 +261,9 @@ Design on paper first, then in the stack, then in the designer.
 
 ## Completion conditions
 
-- `cdk-synth` passes, and `pytest` passes with: a test asserting that
-  `flows/inbound-email.json` contains no `arn:aws:`; template tests for a second queue, both
+- `cdk-synth` passes, and `pytest` passes with: the lesson 01 test asserting that
+  `flows/inbound-email.json` contains no ARN; a test that the file's `${Name}` placeholders and
+  the `Fn.sub` map's keys are the same set; template tests for a second queue, both
   queues in the routing profile on the email channel, and the `PriorityQueueId` output.
 - `ConnectRouting` is deployed and publishes `PriorityQueueId`; the deployed flow is the one in
   `flows/inbound-email.json` (no console-only edits).
@@ -292,7 +301,7 @@ hit.
 - **Spam and virus verdicts.** The segment attributes for the SES spam and virus verdicts can
   be checked for `FAILED` before anything else, routing such mail to a review queue or ending
   it. Discuss where in the flow that check belongs and why.
-- **Branching on the sender.** The SPEC allows the rule to match the subject *or* the sender.
+- **Branching on the sender.** The course allows the rule to match the subject *or* the sender.
   A Check contact attributes on the Customer endpoint address with **Starts With** or
   **Contains** works for a domain rule — and shows why identifying *people* belongs in the
   Lambda of lesson `04-lambda-enrichment` instead of a growing list of conditions.

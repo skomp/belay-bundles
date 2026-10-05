@@ -25,9 +25,10 @@ and explain what you see from the routing profile alone.
   carries a `route_reason`.
 - The routing profile in `ConnectRouting` has `VOICE` and `EMAIL` media concurrencies and queue
   configurations for both queues on both channels.
-- A way to make two emails wait. Use `tools/scenarios.py` from lesson `05-following-a-contact`
-  (it creates email contacts through the Connect API), or send two emails by hand from your
-  mailbox.
+- Your own mailbox, to send the test's two emails by hand. You choose each email's sender and
+  subject so that you know which queue it will reach. Do not use `tools/scenarios.py` from lesson
+  `05-following-a-contact` here: it always creates three contacts, and two of them go to the
+  priority queue, so it cannot set up the test this lesson needs.
 - Your phone, for one call that you keep on hold for a minute or two. From outside the US that is
   an international call. Keep tests short.
 
@@ -48,6 +49,8 @@ and explain what you see from the routing profile alone.
   prescribe them
 - Predict the offer order of a mixed set of waiting contacts, write the prediction down before
   testing, observe, and explain any difference from the routing profile
+- Explain, without building it, where agent assist and generative self-service from AI agents in
+  Amazon Connect would sit in your own email and voice flows
 
 ## Theory
 
@@ -124,6 +127,35 @@ that is wrong for a busy day passes a quiet test. Concurrency, cross-channel beh
 priority only show their effect when **several contacts wait at once**, before the agent becomes
 Available. That is how this lesson's test is built.
 
+**What AI agents would add to your flows (explained, not built).** Your agent now works two
+channels from flows you wrote. AWS's generative AI for this is **AI agents** in Amazon Connect.
+It launched as **Amazon Q in Connect**, and that name is still in the API reference and in the
+default prompt names; the admin guide's pages now call the service **Connect Customer**. Check the
+current names when you read the documentation, because they have changed more than once. AI
+agents do two separate jobs:
+
+- **Agent assist** helps your human agent. A **Connect assistant** block in a flow associates the
+  contact with an AI agents *domain*, which is one knowledge base. For an email contact, the agent
+  then sees in the workspace's Connect assistant panel an overview of the email thread,
+  recommended knowledge articles, and a drafted reply to copy, edit and send. In your email flow
+  the block would sit before Transfer to queue, behind a Check contact attributes that lets only
+  inbound email through. The admin guide warns that an outbound email that reaches the block is
+  analysed and charged: the same outbound-flow trap as Send message in lesson
+  `03-flow-logic-for-email`. For calls, agent assist also needs **Set recording and analytics
+  behavior** with real-time conversational analytics, which this course does not cover.
+- **Generative self-service** lets an AI agent talk to the customer directly, and is documented
+  for **voice and chat only, not email**. In a voice flow it sits where your menu is: a **Get
+  customer input** block invokes a conversational AI (Amazon Lex) bot that hands the conversation
+  to the AI agent. When the AI agent stops, for example with its `Escalate` or `Complete` tool,
+  control returns to the flow, and a Check contact attributes on the Lex session attribute
+  decides what happens next. An escalation still ends in Set working queue and Transfer to queue,
+  so it still needs a `route_reason`, and the attributes your lookup copied onto the contact
+  before the menu are still there to route on.
+
+The course builds neither: both need a knowledge base and a domain, and self-service needs a Lex
+bot, which are outside its scope (`COURSE.md`, *Coverage*). What you can do is say where each one
+would plug into the flows you already have.
+
 ## Concepts to teach
 
 The routing profile as the answer to three questions (which channels and how many, what may arrive
@@ -138,7 +170,10 @@ between-agents rule (fewest contacts, then longest Available) and why it does no
 agent; Change routing priority / age as a per-contact lever, distinct from the profile; how the
 workspace presents a call and an email; reading the deployed profile instead of trusting
 defaults; why a single-contact test cannot validate concurrency; the concurrency numbers as the
-learner's own defended decision (`DESIGN.md`, *Deliberately unresolved*).
+learner's own defended decision (`DESIGN.md`, *Deliberately unresolved*); AI agents in Amazon
+Connect (formerly Amazon Q in Connect), explained and not built: agent assist through a Connect
+assistant block in the email or voice flow, generative self-service through Get customer input
+and a Lex bot in the voice flow only, and the hand-back to the flow's own routing.
 
 ## Constraints
 
@@ -189,10 +224,17 @@ nothing, because each contact was alone. The test needs **one call and two email
 together** before the agent is Available:
 
 1. Agent not Available (Offline, or another non-routable status) in the workspace.
-2. Create the two emails (with `tools/scenarios.py`, or by sending them by hand), and note the
-   time each one was created. Wait until both show as contacts in queue.
+2. Decide which queue each email should reach, then send the two emails by hand so that they
+   do. Ask the learner how their flow will route each one before they send it. Since lesson
+   `04-lambda-enrichment` their own address is a gold record, so every email from it goes to
+   the priority queue, whatever the subject. To land one in the course queue they either send
+   it from a second mailbox that is not in the table, or remove their own email record for the
+   test with `python3 tools/load_customers.py --remove-endpoint <their address>` and let the
+   subject rule decide. Note the time each email was sent, wait until both show as contacts in
+   queue, and confirm each one's queue and `route_reason` from contact search or
+   `describe-contact` before going on. The prediction needs these queues as facts, not guesses.
 3. Call the number, take the menu path the learner chooses, and stay on the line in queue. Note
-   the time.
+   the time, and name the queue that menu path reaches.
 
 Before step 4, the **prediction**. The learner says, in order, what the agent will be offered
 when they go Available: which contact first, whether a second contact is offered while the first
@@ -212,17 +254,31 @@ queued. Common surprises: an email created a moment later than the call that is 
 first because of priority or delay; a second email offered during the first because email
 concurrency is above 1; or no email during the call because of `VOICE`'s behaviour.
 
-If the first run was simple (for example, everything at priority 1 and delay 0, so it was pure
-FIFO), have them change exactly one property, such as the `EMAIL` entry's priority or
-`VOICE`'s `BehaviorType`, predict again, record the prediction, and run the test again. Two
-predictions that differ by one property, both correct, make the strongest evidence.
+Then the second run, which every learner does. Have them change exactly one routing-profile
+setting: the `Priority` or the `Delay` of one queue and channel entry in `QueueConfigs`. They
+choose the entry and the new value so that, by their own reasoning, the offer order changes.
+Update the template test for that entry, deploy `ConnectRouting`, and confirm the change with
+`describe-routing-profile`. Before any contact is created, the learner writes down the new
+prediction, with the property that decides each step, and the tutor records it in `STATE.md`.
+Then repeat steps 1 to 4 with fresh contacts: the same kinds of email to the same queues, and
+the same menu path. Compare again. Two predictions that differ by one property, both correct,
+make the strongest evidence; a second run that matches the first when the learner expected a
+change is the most useful thing in the lesson, and they find the misread property as before.
+Leave the profile at whichever of the two settings the learner defends, and keep the code, the
+tests and the deployed profile in agreement.
+
+Close the build with the question the course has deferred until now. Have the learner open
+their two flow files and say, block by block, where agent assist would go in the email flow and
+in the voice flow, where generative self-service would go in the voice flow, and why it has no
+place in the email flow (*Theory*, *What AI agents would add to your flows*). They answer from
+their own flows, not from the documentation's diagrams.
 
 End the lesson, and the course, by pointing at teardown. `COURSE.md`, *When you are finished*,
 gives the order: release the number first, then destroy `ConnectRouting`, then `ConnectCore`.
 Before destroying the routing stack, the learner removes their own records from the table with
-`tools/load_customers.py --remove-endpoint <endpoint>` (their phone number, and their email
-address from lesson `04-lambda-enrichment`), and deletes any copy of those records they keep
-outside the account.
+`python3 tools/load_customers.py --remove-endpoint <endpoint>` (their phone number, and their
+email address from lesson `04-lambda-enrichment` if it is still there), and deletes any copy of
+those records they keep outside the account.
 
 ## Completion conditions
 
@@ -233,16 +289,24 @@ outside the account.
 - The deployed routing profile matches the code. The learner shows it with
   `describe-routing-profile`.
 - `concurrency-observed`, a manual condition: with **one call and two emails waiting at the same
-  time** before the agent went Available, the agent was offered them in the order the learner
-  predicted. The prediction was recorded in `STATE.md` **before** the test. The learner explains
+  time** before the agent went Available, each email sent by hand and its queue confirmed from
+  the contact record before the prediction, the agent was offered them in the order the learner
+  predicted. This holds for **both runs**: the first, and the second after one `Priority` or
+  `Delay` in `QueueConfigs` was changed. Each prediction was recorded in `STATE.md` **before**
+  its test. The learner explains
   each step of the observed order from a named property of the routing profile: priority, delay,
   age, concurrency or cross-channel behaviour. A result that differed from the prediction does
   not pass when the prediction is rewritten. It passes when the learner identifies the property
   they misread, corrects the reasoning, and confirms it with a new prediction and test.
 - The learner defends their concurrency numbers and behaviours in a sentence each, for this
   contact centre, and can say what they would change for a team of agents.
+- The learner can explain, pointing at blocks in their own `flows/inbound-email.json` and
+  `flows/inbound-voice.json`, where agent assist (a Connect assistant block) would sit in each
+  flow and where generative self-service would sit in the voice flow, why self-service has no
+  place in the email flow, and how a contact the AI agent hands back still reaches a queue with a
+  `route_reason`.
 - The learner knows the teardown order in `COURSE.md`, *When you are finished*, and that their
-  own records are removed with `tools/load_customers.py --remove-endpoint`.
+  own records are removed with `python3 tools/load_customers.py --remove-endpoint`.
 
 ## On completion, persist
 
@@ -252,7 +316,10 @@ learner's resolution for their own contact centre):
 - The chosen `EMAIL` concurrency, the `BehaviorType` for each channel, and the priority and delay
   of each queue and channel pair, each with the learner's one-sentence reason.
 - Each prediction as recorded before its test, the observed order, and the explanation. Where
-  they differed, the property that was misread.
+  they differed, the property that was misread. For the second run, the one `QueueConfigs`
+  setting that was changed, its old and new value, and which value the profile was left at.
+- Where the learner placed agent assist and generative self-service in their own flows, in a
+  sentence each. Nothing is built.
 - That the course's build is complete, and the state of teardown: whether the number has been
   released, whether the learner's own records have been removed with `--remove-endpoint`, and
   whether each stack has been destroyed. Any step not yet done is recorded as pending, with

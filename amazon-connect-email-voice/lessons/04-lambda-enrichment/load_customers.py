@@ -100,11 +100,15 @@ def main(argv):
     if args.add_endpoint and not args.name:
         parser.error("--add-endpoint needs --name")
     # The Lambda returns these values to Connect, which documents only letters,
-    # digits, dash and underscore in them -- so no spaces: "Ada-Fairweather".
-    for flag, value in (("--name", args.name), ("--customer-id", args.customer_id)):
-        if args.add_endpoint and value and not SAFE.match(value):
-            parser.error(f"{flag} {value!r}: use only letters, digits, - and _ "
-                         "(e.g. Ada-Fairweather), because the Lambda returns it to Connect")
+    # digits, dash and underscore in them. The customer id must stay inside that;
+    # a name may break it, because lesson 04 asks you to find out what happens.
+    if args.add_endpoint and args.customer_id and not SAFE.match(args.customer_id):
+        parser.error(f"--customer-id {args.customer_id!r}: use only letters, digits, - and _ "
+                     "(e.g. C-LEARNER), because the Lambda returns it to Connect")
+    if args.add_endpoint and args.name and not SAFE.match(args.name):
+        print(f"warning: --name {args.name!r} has characters outside letters, digits, - and _; "
+              "the Lambda documentation does not promise these survive the trip to Connect. "
+              "Lesson 04 asks you to find out.", file=sys.stderr)
 
     endpoint = None
     if args.add_endpoint or args.remove_endpoint:

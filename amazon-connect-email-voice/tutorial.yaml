@@ -54,7 +54,7 @@ validators:
 
 setup_validators:
   - name: toolchain-present
-    describe: Checks that Python, Node, the CDK CLI and AWS credentials for one account are available, so a failure in lesson 00 is your code and not your environment.
+    describe: Checks that Python, Node.js, the AWS CLI with credentials and a region are in place, and reports the CDK CLI and Python packages lesson 00 installs, so a failure in lesson 00 is your code and not your environment.
 
 covers:
   connect-instance:

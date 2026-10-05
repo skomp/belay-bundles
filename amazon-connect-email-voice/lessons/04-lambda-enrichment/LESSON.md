@@ -97,8 +97,10 @@ only a unit test of the *handler's output shape* does.
 
 The documentation also says the returned values may contain only alphanumeric characters,
 dashes and underscores. That is stricter than it sounds for `display_name` ("Ada Lovelace" has a
-space). Treat it as something to find out on your own instance: return a display name with a
-space, and read what the contact record and the flow log show. Record the result.
+space). `DESIGN.md`, *Lambda contract*, keeps names free of spaces until someone has checked.
+Treat it as something to find out on your own instance: add your own record with a name that
+contains a space (the loader accepts it and prints a warning), and observe whether the name
+survives the Lambda response and the Set contact attributes copy. Record the result.
 
 An unknown sender is not an error. The function returns `{}`; the flow continues on its Success
 branch with no customer attributes, and the tier check falls through. Errors — the table cannot
@@ -135,8 +137,11 @@ Connect needs two separate things before a flow may call a function:
 
 When you add a function in the Connect console, the console creates the second one for you.
 CloudFormation does **not**: declaring the association alone leaves Connect unable to invoke the
-function. The SPEC expects a missing grant to show up as a failed block at run time rather than
-a failed deploy; find out on your own instance which grant fails how, and record it.
+function (`DESIGN.md`, *Lambda contract*). Expect the missing grant to show up as a failed block
+at run time rather than a failed deploy — nothing in the deploy tries to invoke the function. This
+lesson has you find out on your own instance: you deploy the association alone, send an email
+through the flow, and record what the contact and the function show before you add the
+permission.
 
 Scope the permission to the instance ARN. A permission for `connect.amazonaws.com` with no source
 ARN lets any Connect instance, in any account, invoke your function.
@@ -196,7 +201,7 @@ name, the domain), breaks that reuse.
 - After the block, Set contact attributes copies `customer_id`, `tier` and `display_name` onto the
   current contact. A contact with `tier=gold` goes to the priority queue with
   `route_reason=tier-gold`. The learner decides, and records, which wins when a gold customer
-  sends an urgent subject.
+  sends an urgent subject (step 6), and proves the order with a test email (step 10).
 - The deliberate failure switch the learner builds is **off** when the lesson ends, and turning it
   on or off is one obvious step.
 
@@ -221,29 +226,52 @@ name, the domain), breaks that reuse.
 3. **Add the table and the function** to `ConnectRouting`, with the outputs, read-only access,
    and a timeout below 8 seconds. Template tests: the table's key schema, the function's timeout,
    the outputs.
-4. **Add the grants.** The integration association first, alone. Ask the learner to predict what
-   happens when a contact reaches the block with only that. Then the Lambda permission, scoped to
-   the instance ARN. Template tests for both, including that the permission carries a source ARN.
-5. **Load the customers.** Deploy, then run `tools/load_customers.py` against the table. Then the
-   learner adds **their own** record with the loader's `--add-endpoint <their address> --tier gold
-   --name "<their name>"`. Say plainly: this is their personal data, in a table in their own
-   account; it is there so their own email is recognised; `--remove-endpoint` deletes it, and
-   teardown removes the table. It never goes into `data/customers.json` or into git.
-6. **Wire the flow.** In the designer: the AWS Lambda function block (synchronous, timeout,
-   `STRING_MAP`), then Set contact attributes copying the three values, then a Check contact
-   attributes on `tier`. Gold sets `route_reason=tier-gold` and the priority queue. The Error
-   branch goes somewhere the learner chooses and defends — usually the default routing with its
-   own `route_reason` — never a dead end. Export, replace the function ARN with
+4. **Add the first grant only.** The integration association, alone — no Lambda permission yet.
+   Template test for it: type `LAMBDA_FUNCTION`, the instance ARN, the function ARN. Ask the
+   learner to predict what happens when a contact reaches the block with only that grant, and
+   the tutor records the prediction in `STATE.md`. Step 7 checks it.
+5. **Load the customers.** Deploy, then run `python3 tools/load_customers.py` against the
+   table. Then the learner adds **their own** record with
+   `python3 tools/load_customers.py --add-endpoint <their address> --tier gold --name <a name
+   with no space>`. Say plainly: this is their personal data, in a table in their own account;
+   it is there so their own email is recognised; `--remove-endpoint` deletes it, and teardown
+   removes the table. It never goes into `data/customers.json` or into git.
+6. **Decide the precedence, then wire the flow.** Before drawing anything, the learner decides
+   and says to the tutor: when an urgent subject comes from a gold customer, which
+   `route_reason` wins — `subject-urgent` or `tier-gold` — and therefore which check comes first
+   in the flow, and whether the second check still runs on the first one's match. The tutor
+   records the decision in `STATE.md`. Then, in the designer: the AWS Lambda function block
+   (synchronous, timeout, `STRING_MAP`), then Set contact attributes copying the three values,
+   then a Check contact attributes on `tier`, placed relative to the lesson 03 subject check in
+   the order the learner chose. Gold sets `route_reason=tier-gold` and the priority queue. The
+   Error branch goes somewhere the learner chooses and defends — usually the default routing
+   with its own `route_reason` — never a dead end. Export, replace the function ARN with
    `${LookupFunctionArn}`, add it to the placeholder map, let the guard test confirm, deploy.
    *Instructive failure, if the learner skipped the Error branch:* ask what the contact does when
-   the function times out. Step 8 shows it.
-7. **Test the happy paths.** The learner emails from their own mailbox: their contact reaches the
-   priority queue with `customer_id`, `tier=gold`, `display_name` and `route_reason=tier-gold`
-   on the contact. The tutor runs `lambda-enriches`. Then the learner removes their record with
-   `--remove-endpoint`, emails again, and the contact takes the unknown-customer path. Re-add the
-   record afterwards; lesson `05-following-a-contact` does not need it, but lesson
-   `07-voice-menu-and-caller-lookup` adds a phone number beside it.
-8. **Break it on purpose.** The learner designs a failure switch for the function and builds it:
+   the function cannot be invoked or times out. Step 7 and step 9 show it.
+7. **Check the one-grant prediction.** With only the association deployed, the learner emails
+   from their own mailbox and finds the evidence. Flow logging is not on yet (lesson
+   `05-following-a-contact` turns it on), so the evidence is elsewhere: the contact's
+   `route_reason` and queue from contact search or `get-contact-attributes` — does it show the
+   Error path's value, or `tier-gold`? — and the function's own record, its `Invocations`
+   metric in CloudWatch and its log group, which shows whether the function ran at all for that
+   time. The learner compares this with the prediction from step 4, says which grant failed and
+   where it failed, and the tutor records the observation. Then the learner adds the Lambda
+   permission, scoped to the instance ARN, with a template test that it names
+   `connect.amazonaws.com` and carries a source ARN, and deploys.
+8. **Test the happy paths.** The learner emails again from their own mailbox, with a subject that
+   does not match the urgent rule: their contact reaches the priority queue with
+   `customer_id`, `tier=gold`, `display_name` and `route_reason=tier-gold` on the contact. The
+   tutor runs `lambda-enriches`. Then the display-name experiment from *Theory*: the learner
+   re-adds their own record with a `--name` that contains a space (the loader replaces the
+   record and prints a warning), emails again, and observes whether the name survives — in the
+   function's log line, in the contact's `display_name` attribute, and in which branch the
+   contact took. The tutor records the result. The learner then re-adds the record with a name
+   that has no space. Then the learner removes their record with `--remove-endpoint`, emails
+   again, and the contact takes the unknown-customer path. Re-add the record afterwards; lesson
+   `05-following-a-contact` does not need it, but lesson `07-voice-menu-and-caller-lookup` adds a
+   phone number beside it.
+9. **Break it on purpose.** The learner designs a failure switch for the function and builds it:
    for example an environment variable that makes the handler raise, set from CDK context, or a
    magic sender address that always raises. They choose, and say what each costs — an environment
    variable needs a redeploy to flip; a magic address needs none but lives in production code.
@@ -251,6 +279,15 @@ name, the domain), breaks that reuse.
    function's CloudWatch log shows the invocations (count them — Connect retries), and the contact
    shows the Error path's `route_reason`. Then the switch goes **off**, and one more email proves
    the happy path is back.
+10. **Prove the precedence.** Last, the learner sends the case step 6 decided: an email from
+    their own (gold) address with a subject that matches the urgent rule. Before looking, they
+    say which `route_reason` the contact will carry. Then they read `route_reason` and the queue
+    from the contact record, and confirm the value is the one they chose in step 6. If it is
+    not, they find the block order in the exported flow that caused it, fix the flow through
+    the round trip, and send the email again. The lesson ends when this contact shows the
+    recorded order. `lambda-enriches` reads the most recent contact and wants a `customer_id` on
+    it; if the learner's flow skips the lookup for urgent mail, they send one more ordinary
+    email from their own address before the tutor runs the checks at the end.
 
 ## Completion conditions
 
@@ -271,6 +308,11 @@ name, the domain), breaks that reuse.
 - With the failure switch on, an email took the Error branch; the learner shows the function's log
   lines for that contact id and the contact's `route_reason`. The switch is off again, and a later
   email routed normally.
+- With only the integration association deployed, an email reached the Lambda block, and the
+  learner shows what happened from the contact's `route_reason` and the function's invocation
+  metrics or log group, compared with the prediction recorded before the test.
+- An email from the learner's own gold address with an urgent subject carries the `route_reason`
+  of the precedence the learner recorded in step 6, shown from the contact record.
 - The learner can explain: why the handler branches on `Channel` and not on
   `CustomerEndpoint.Type`; why a nested response fails only at run time; which of the two grants
   CloudFormation does not create; why the values are copied with Set contact attributes; and what
@@ -282,15 +324,19 @@ In the instance's `DESIGN.md`, under the lambda contract:
 
 - The normalisation rules as implemented, for both email and E.164, and the function name that
   does it.
-- The precedence chosen between `subject-urgent` and `tier-gold`, and the `route_reason` used for
-  the Error path and for the unknown customer.
-- What the learner observed about a `display_name` with a space under `STRING_MAP`.
-- What the learner observed when only one of the two grants existed.
+- The precedence chosen between `subject-urgent` and `tier-gold`, the block order that implements
+  it, and the `route_reason` used for the Error path and for the unknown customer.
+- What the learner observed about a `display_name` with a space under `STRING_MAP`: whether it
+  survived the Lambda response and the Set contact attributes copy, or which branch the contact
+  took instead.
+- What the learner observed when only one of the two grants existed (the integration association
+  without the Lambda permission): the prediction, the branch the contact took, and what the
+  function's metrics and logs showed.
 - How the failure switch works and how to turn it off.
 
 In `STATE.md`: that the learner's own record is in the table (and therefore personal data exists
-in their account until teardown); the contact ids of the gold, unknown and Error test emails; that
-the failure switch is off.
+in their account until teardown); the contact ids of the one-grant, gold, unknown, Error and
+precedence test emails; that the failure switch is off.
 
 ## Optional deeper paths
 

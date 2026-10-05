@@ -2,7 +2,7 @@
 id: 05-following-a-contact
 title: Following a contact
 design_refs: [lambda-contract]
-validators: [contact-explained]
+validators: [cdk-synth, pytest, contact-explained]
 supplies:
   - from: lessons/05-following-a-contact/scenarios.py
     to: tools/scenarios.py
@@ -168,7 +168,7 @@ contact entering the Lambda block and receiving `tier=gold`; this attribute on t
 
 1. **Check the Lambda log line.** As in Prerequisites: find a contact id in the lookup function's
    log, or add the line, redeploy, confirm tests pass.
-2. **Run the scenarios as the code stands.** The learner runs `tools/scenarios.py` and notes the
+2. **Run the scenarios as the code stands.** The learner runs `python3 tools/scenarios.py` and notes the
    three ids. They then try to explain A. Contact search finds it and the record shows its queue and
    attributes. Then they look for its flow log.
    *Instructive failure, by design if logging is not yet on:* the log group has nothing for A, or
@@ -205,7 +205,8 @@ contact entering the Lambda block and receiving `tier=gold`; this attribute on t
 
 - Flow logging is on: `ContactflowLogs` is set on the instance in `ConnectCore`, and
   `flows/inbound-email.json` contains an enabled Set logging behavior block before the first branch.
-  Both are deployed. The guard test and the rest of the test suite pass.
+  Both are deployed. The `cdk-synth` validator passes on both stacks, and the `pytest` validator
+  passes: the guard test still passes on the re-exported flow, and so does the rest of the suite.
 - The lookup Lambda logs the contact id on every invocation.
 - **`contact-explained`** (manual) is satisfied. For **each** of A, B and C — by the ids from a run
   made *after* logging was enabled — the learner states:
