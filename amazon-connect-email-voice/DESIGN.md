@@ -47,8 +47,8 @@ The CDK app has **two stacks**:
 
 - the **long-lived stack** holds the instance, the email address and the claimed phone
   number. It is deployed rarely and never torn down mid-course.
-- the **churning stack** holds hours of operation, queues, routing profiles, flows, the
-  lookup Lambda and its table. It is redeployed freely, as often as a lesson needs.
+- the **churning stack** holds the agent user, hours of operation, queues, routing profiles,
+  flows, the lookup Lambda and its table. It is redeployed freely, as often as a lesson needs.
 
 References pass one way only, from the long-lived stack to the churning one (instance ARN,
 email address id, phone number id). Nothing in the long-lived stack refers to anything in the
