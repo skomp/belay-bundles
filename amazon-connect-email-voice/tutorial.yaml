@@ -134,3 +134,6 @@ supplies:
   - from: supplies/requirements-dev.txt
     to: requirements-dev.txt
     describe: pytest and boto3 on top of the CDK libraries, for the template tests and the live checks
+  - from: supplies/conftest.py
+    to: tests/conftest.py
+    describe: Fixtures that synthesize both stacks into templates your tests assert against, with no AWS account needed
