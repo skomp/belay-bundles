@@ -19,6 +19,7 @@ lessons:
   - lessons/02-hours-queues-routing-profiles.md
   - lessons/03-flow-logic-for-email.md
   - lessons/04-lambda-enrichment/LESSON.md
+  - lessons/05-following-a-contact/LESSON.md
 
 workspace_kind: new-repository
 tutor_owned: [tutorial/STATE.md, tutorial/DESIGN.md]
