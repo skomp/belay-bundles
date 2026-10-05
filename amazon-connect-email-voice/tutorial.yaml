@@ -1,0 +1,105 @@
+bundle_format: 1
+id: amazon-connect-email-voice
+title: "Amazon Connect: an Email-and-Voice Contact Centre as Code"
+description: >
+  Build an Amazon Connect contact centre with AWS CDK in Python: an inbound email
+  address first, then a phone line on the same queues and routing, with a Lambda that
+  recognises the customer on either channel.
+teaching_method: >
+  You write every construct, flow and Lambda yourself; the tutor checks your deployed
+  contact centre and the contacts it routed, straight from your AWS account.
+subjects: [aws, amazon-connect, contact-centre, infrastructure-as-code, lambda]
+aliases: [connect, aws-connect, call-centre, call-center, contact-center, ivr, email-routing, cdk]
+level: intermediate
+style: [project-driven, interactive]
+
+lessons: []
+
+workspace_kind: new-repository
+tutor_owned: [tutorial/STATE.md, tutorial/DESIGN.md]
+learner_owned:
+  - app.py
+  - contact_centre/**
+  - flows/**
+  - lambdas/**
+  - tests/**
+  - checks/**
+  - tools/**
+  - data/**
+  - cdk.json
+  - requirements.txt
+  - requirements-dev.txt
+  - README.md
+ownership_policy: tutor-must-not-edit-learner-owned
+
+validators:
+  toolchain-present:    { kind: command, command: [python3, checks/toolchain.py] }
+  cdk-synth:            { kind: command, command: [cdk, synth, --quiet] }
+  pytest:               { kind: command, command: [python3, -m, pytest, -q, tests] }
+  instance-live:        { kind: command, command: [python3, checks/live.py, instance] }
+  email-routed:         { kind: command, command: [python3, checks/live.py, email] }
+  lambda-enriches:      { kind: command, command: [python3, checks/live.py, lambda] }
+  call-routed:          { kind: command, command: [python3, checks/live.py, call] }
+  contact-explained:    { kind: manual }
+  concurrency-observed: { kind: manual }
+
+setup_validators:
+  - name: toolchain-present
+    describe: Checks that Python, Node, the CDK CLI and AWS credentials for one account are available, so a failure in lesson 01 is your code and not your environment.
+
+covers:
+  connect-instance:
+    summary: >
+      An Amazon Connect instance is the container for users, queues, flows and
+      contacts, with an identity mode and alias fixed at creation.
+    aliases: [instance, identity-management, instance-alias]
+  contact-flows:
+    summary: >
+      A flow is the program a contact runs through: blocks that branch on
+      attributes, call Lambda and set the queue the contact waits in.
+    aliases: [flows, contact-flow, ivr, flow-designer]
+  routing:
+    summary: >
+      Hours of operation, queues and routing profiles together decide which agent
+      is offered which contact, on which channel, and when.
+    aliases: [queues, routing-profiles, hours-of-operation, concurrency]
+  email-channel:
+    summary: >
+      An inbound email becomes a contact on an instance email address and is routed
+      and answered like any other contact.
+    aliases: [email-contact, connect-email]
+  voice-channel:
+    summary: >
+      A claimed phone number delivers calls into an inbound voice flow, with prompts
+      and caller input, onto the same routing as email.
+    aliases: [phone-number, did, telephony, dtmf]
+  flow-lambda:
+    summary: >
+      A flow invokes a Lambda with the contact's data and receives a flat map of
+      attributes back, with an error branch when it fails.
+    aliases: [lambda-integration, contact-enrichment, customer-lookup]
+  contact-tracing:
+    summary: >
+      Contact search, contact records and flow logs show what actually happened to
+      a contact, as evidence rather than inference.
+    aliases: [flow-logs, contact-records, contact-search, troubleshooting]
+
+assumes:
+  aws-fundamentals:
+    level: working
+    summary: >
+      Use IAM, Lambda, DynamoDB, CloudWatch Logs and the AWS CLI with one account and
+      credentials, without instruction.
+  aws-cdk:
+    level: working
+    summary: >
+      Write a CDK app in Python with stacks and constructs, and run synth and deploy,
+      even if never against Connect.
+  python:
+    level: working
+    summary: >
+      Write and test ordinary Python, including a small pytest suite.
+
+one_task_at_a_time: true
+solution_code: on-request-only
+advance_on: validated-evidence-only
