@@ -140,3 +140,6 @@ supplies:
   - from: supplies/README.md
     to: README.md
     describe: How this app is laid out, deployed and torn down
+  - from: supplies/gitignore
+    to: .gitignore
+    describe: Keeps cdk.out, the virtualenv and editor droppings out of your history
