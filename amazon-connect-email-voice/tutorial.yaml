@@ -122,3 +122,6 @@ supplies:
   - from: supplies/contact_centre/core_stack.py
     to: contact_centre/core_stack.py
     describe: "ConnectCore, the long-lived stack, still empty: the instance, the email address and the phone number go here"
+  - from: supplies/contact_centre/routing_stack.py
+    to: contact_centre/routing_stack.py
+    describe: "ConnectRouting, the stack you redeploy freely, still empty: users, hours, queues, routing profiles, flows and the Lambda go here"
