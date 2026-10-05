@@ -65,7 +65,7 @@ The stack names are fixed, because the checks find the stacks by name: **`Connec
 `CfnOutput`s with fixed ids; each lesson names the outputs it adds.
 
 **What breaks if a lesson contradicts this:** a phone number in the churning stack is
-released by a replacement and may never be reclaimable; an instance that is recreated loses
+released by a replacement and cannot be reclaimed; an instance that is recreated loses
 its alias, its email domain and its contact history. A reference from long-lived to churning
 makes the long-lived stack depend on the one meant to churn, and CloudFormation then refuses
 the very redeploys the split exists for. *Resolved.*
@@ -102,6 +102,13 @@ who edits in the console and then deploys loses the edit and learns to distrust 
   fake customer to paper over one.
 - **The table** is keyed on the normalised endpoint (`endpoint`: a lower-cased email address,
   or an E.164 phone number) and holds `customer_id`, `tier` and `display_name`.
+- **The result is not a contact attribute until the flow makes it one.** The block's output is
+  readable straight after it as `$.External.<key>`, and is lost at the end of the flow unless a
+  Set contact attributes block copies it into user-defined attributes. The flow copies all
+  three; that copy is what contact search, the contact record and the checks see.
+- **Values stay simple.** The Lambda documentation restricts returned values to letters,
+  digits, dashes and underscores, so `display_name` carries no spaces until a live walk-through
+  confirms otherwise.
 - **The flow block** invokes the function synchronously with response validation
   `STRING_MAP`. A synchronous invocation times out after at most 8 seconds, so the function's
   own timeout stays below that.
@@ -119,6 +126,10 @@ at deploy. *Resolved.*
 
 - **Custom email domain.** The course uses the instance's automatic `email.connect.aws`
   domain. Moving to a domain verified in Amazon SES is explained and never built.
+- **Which rule wins when two apply.** An urgent subject from a gold customer meets both the
+  lesson 03 rule and the lesson 04 rule. Both send the contact to the priority queue, but only
+  one `route_reason` can be recorded. Lesson 04 asks the learner to decide the order and
+  record it; nothing later depends on the answer.
 - **Agent concurrency numbers.** Lesson 08 asks the learner to choose and defend the
   per-channel concurrency of the routing profile. The course does not prescribe values; the
   learner's reasoning is the point.

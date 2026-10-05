@@ -120,7 +120,9 @@ A contact centre left running keeps costing money. When you are done — or paus
 than a few days — tear it down in this order:
 
 1. **Release the phone number** first. It bills daily, and a number deleted with the stack
-   is released the same way; doing it deliberately means you know it is gone.
+   is released the same way; doing it deliberately means you know it is gone. A released
+   number cannot be reclaimed: it enters a cool-down of up to 180 days, is not billed during
+   it, and may then go to another customer.
 2. **Destroy the churning stack**, then the **long-lived stack**. Deleting the instance
    deletes its contacts, users and email address.
 3. **Delete the customer record you added with your own email address and phone number**, if

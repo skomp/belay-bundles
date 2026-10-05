@@ -54,7 +54,7 @@ validators:
 
 setup_validators:
   - name: toolchain-present
-    describe: Checks that Python, Node, the CDK CLI and AWS credentials for one account are available, so a failure in lesson 01 is your code and not your environment.
+    describe: Checks that Python, Node, the CDK CLI and AWS credentials for one account are available, so a failure in lesson 00 is your code and not your environment.
 
 covers:
   connect-instance:
@@ -86,7 +86,7 @@ covers:
     summary: >
       A flow invokes a Lambda with the contact's data and receives a flat map of
       attributes back, with an error branch when it fails.
-    aliases: [lambda-integration, contact-enrichment, customer-lookup]
+    aliases: [lambda-integration, lambda-enrichment, contact-enrichment, customer-lookup]
   contact-tracing:
     summary: >
       Contact search, contact records and flow logs show what actually happened to
