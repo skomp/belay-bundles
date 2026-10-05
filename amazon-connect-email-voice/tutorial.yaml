@@ -137,3 +137,6 @@ supplies:
   - from: supplies/conftest.py
     to: tests/conftest.py
     describe: Fixtures that synthesize both stacks into templates your tests assert against, with no AWS account needed
+  - from: supplies/README.md
+    to: README.md
+    describe: How this app is laid out, deployed and torn down
