@@ -146,3 +146,6 @@ supplies:
   - from: supplies/checks-toolchain.py
     to: checks/toolchain.py
     describe: The check that confirms Python, Node and your AWS credentials and region before you start
+  - from: supplies/checks-live.py
+    to: checks/live.py
+    describe: The checks that read your deployed contact centre and its latest contacts back from AWS; they never change anything
