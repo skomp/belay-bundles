@@ -3,6 +3,10 @@ id: 05-following-a-contact
 title: Following a contact
 design_refs: [lambda-contract]
 validators: [contact-explained]
+supplies:
+  - from: lessons/05-following-a-contact/scenarios.py
+    to: tools/scenarios.py
+    describe: Creates three test email contacts through the Connect API for you to explain; it prints their ids, not what happened to them
 ---
 
 ## Purpose
