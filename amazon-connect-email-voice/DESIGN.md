@@ -10,10 +10,19 @@ The instance uses **`CONNECT_MANAGED`** identity: users live in Connect itself, 
 directory or SAML provider is needed.
 
 **One region, chosen in lesson 00 and used for everything.** It must support the Amazon
-Connect email channel. An EU region is a reasonable choice for a learner in the EU, because
-the test contacts carry the learner's own email address and phone number. The learner
-records the region once, and every later lesson and check reads it from there rather than
-from a literal.
+Connect email channel. At general availability (November 2024) those were US East (N.
+Virginia), US West (Oregon), Africa (Cape Town), Asia Pacific (Seoul, Singapore, Sydney,
+Tokyo), Canada (Central), Europe (Frankfurt) and Europe (London). An EU region —
+`eu-central-1` or `eu-west-2` — is a reasonable choice for a learner in the EU, because the
+test contacts carry the learner's own email address and phone number. Africa (Cape Town) is a
+poor choice for this course: claiming phone numbers is not supported there. The learner sets
+the region once, in their AWS configuration, and every later lesson and check reads it from
+there rather than from a literal.
+
+**The instance is created once and kept.** Amazon Connect limits how many instances an
+account can create and delete in 30 days, and a learner who hits the limit waits up to a
+month. Destroying and recreating the instance to "start clean" is never the repair for a
+mistake in this course.
 
 **The instance alias follows one convention**, `<learner-prefix>-tutorail-cc`, because an
 alias is globally unique and becomes the instance's email domain,
@@ -30,7 +39,7 @@ international call from their own phone for each test.
 **What breaks if a lesson contradicts this:** identity mode and alias cannot change after
 creation, so a wrong choice means deleting the instance and every contact in it. A region
 without email stalls lesson 01 with no fix short of starting over. A lesson that assumes a
-local number reintroduces the regulatory stall at lesson 07. *Resolved.*
+local number reintroduces the regulatory stall at lesson 06. *Resolved.*
 
 ## Stack split {#stack-split}
 
@@ -45,6 +54,16 @@ References pass one way only, from the long-lived stack to the churning one (ins
 email address id, phone number id). Nothing in the long-lived stack refers to anything in the
 churning stack.
 
+**Associations live in the churning stack.** Neither `AWS::Connect::EmailAddress` nor
+`AWS::Connect::PhoneNumber` has a property naming the flow it runs; the link is made by the
+`AssociateFlow` API (resource type `INBOUND_EMAIL`) and the `AssociatePhoneNumberContactFlow`
+API. Each association is an `AwsCustomResource` in the churning stack, because it joins a
+long-lived resource to a churning flow, and only the churning side may know about both.
+
+The stack names are fixed, because the checks find the stacks by name: **`ConnectCore`** and
+**`ConnectRouting`**. Each stack publishes the identifiers the checks read as
+`CfnOutput`s with fixed ids; each lesson names the outputs it adds.
+
 **What breaks if a lesson contradicts this:** a phone number in the churning stack is
 released by a replacement and may never be reclaimable; an instance that is recreated loses
 its alias, its email domain and its contact history. A reference from long-lived to churning
@@ -58,7 +77,10 @@ deployed from there by CDK.** The repository is the source of truth.
 
 Every ARN in an exported flow — queues, the Lambda, prompts, hours — is replaced with a
 **placeholder** before it is committed, and the churning stack substitutes the real value at
-synth. One flow file, one placeholder convention, applied the same way every time.
+deploy. The placeholder is CloudFormation's own `${Name}` form — `${CourseQueueArn}`,
+`${LookupFunctionArn}` — and the stack loads the file and passes it through `Fn.sub` with a
+map of names to values. One flow file, one placeholder convention, applied the same way every
+time.
 
 A console edit that is not exported is overwritten by the next deploy. That is intended: the
 designer is where a flow is drawn, the file is what the flow *is*.
@@ -78,6 +100,15 @@ who edits in the console and then deploys loses the edit and learns to distrust 
   empty map for an unknown customer.
 - **Errors raise.** The flow's error branch handles a failure; the function never returns a
   fake customer to paper over one.
+- **The table** is keyed on the normalised endpoint (`endpoint`: a lower-cased email address,
+  or an E.164 phone number) and holds `customer_id`, `tier` and `display_name`.
+- **The flow block** invokes the function synchronously with response validation
+  `STRING_MAP`. A synchronous invocation times out after at most 8 seconds, so the function's
+  own timeout stays below that.
+- **Connect needs two grants to call it:** an `AWS::Connect::IntegrationAssociation` of type
+  `LAMBDA_FUNCTION` on the instance, and a resource-based permission on the function for
+  `connect.amazonaws.com`, scoped to the instance ARN. The console adds the second one for
+  you; CloudFormation does not.
 
 **What breaks if a lesson contradicts this:** lesson 07 reuses the function unchanged for
 voice. A contract shaped around email in lesson 04 forces a second Lambda or a breaking change

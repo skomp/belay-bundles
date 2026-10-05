@@ -253,21 +253,47 @@ The title contains `": "` and is quoted, per the toolkit trap recorded in this r
 
 ## Open questions
 
-- **Which regions to recommend.** The email channel is not in every Connect region. To be
-  checked against the AWS documentation when lesson 00 is written, not assumed — including
-  whether claiming a US DID from each recommended region (an EU one in particular) works
-  self-service, which the July 2023 change suggests but this spec has not verified per region.
 - **A cheaper way to place the test call.** Whether a learner outside the US can reach the
   number without an international call — for example a VoIP app with a US calling rate — is
   worth a line in lesson 06 if a reliable option exists. Not required for the course to work.
-- **Whether enabling email on an instance is fully expressible in CloudFormation**, or needs
-  one console or API step in lesson 02. `AWS::Connect::EmailAddress` exists; whether the
-  instance's email domain is provisioned without a console action is to be verified when
-  lesson 01 is written. If it is not, the step stays the learner's work in that lesson and
-  the spec is revised.
-- **Whether CDK's `CfnContactFlow` accepts email flows** with the content placeholders
-  `#flow-round-trip` needs, or whether a flow type or module constraint applies. Verify
-  before lesson 01 is filled.
+- **Not yet proven by a live deploy:** that `CfnEmailAddress` on `<alias>.email.connect.aws`
+  deploys once email is enabled in the console; the `CustomerEndpoint.Type` value Connect
+  sends for an email contact; and that a US DID claims self-service from each recommended
+  region. The course is written to the documentation; the first real walk-through confirms
+  or corrects these.
+
+### Resolved by research, 2026-10-05
+
+Checked against the AWS documentation before the lessons were written.
+
+- **Regions.** Email is available in us-east-1, us-west-2, af-south-1, ap-northeast-2,
+  ap-southeast-1, ap-southeast-2, ap-northeast-1, ca-central-1, eu-central-1 and eu-west-2.
+  Claiming phone numbers is supported in every region except af-south-1, and a US number
+  needs no documents. Recorded in `DESIGN.md`, *Instance choices*.
+- **Enabling email has a console step.** Creating the SES service role and the default
+  `<alias>.email.connect.aws` domain has no documented CloudFormation or API form. It stays
+  the learner's own step in lesson 01, which is the rule for a step the bundle cannot ship.
+  The two S3 storage configurations email needs (`EMAIL_MESSAGES`, `ATTACHMENTS`) are
+  `AWS::Connect::InstanceStorageConfig` and are written as code.
+- **Flow associations.** Neither `AWS::Connect::EmailAddress` nor `AWS::Connect::PhoneNumber`
+  names a flow. The links are the `AssociateFlow` (`INBOUND_EMAIL`) and
+  `AssociatePhoneNumberContactFlow` APIs, made as `AwsCustomResource`s in the churning stack.
+  An email flow is an ordinary `CONTACT_FLOW`. Recorded in `DESIGN.md`, *Stack split*.
+- **Acknowledgements without templates.** Message templates need an Amazon Q in Connect
+  knowledge base. Lesson 03 uses the Send message block with plain text instead.
+- **Instance creation is rate-limited over 30 days.** Recorded in `DESIGN.md`, *Instance
+  choices*, as the reason the instance is never recreated.
+- **Flow logs** need both the instance attribute `ContactflowLogs` and a Set logging behavior
+  block in the flow; they go to `/aws/connect/<alias>`. Both halves are lesson 05's
+  instructive failures.
+
+### Supplied-file changes made during the build
+
+- `supplies/contact_centre/__init__.py`, `core_stack.py` and `routing_stack.py` are supplied
+  as empty stack classes beside `app.py`, so `app.py` imports something that exists. The
+  learner fills both.
+- `lessons/04-lambda-enrichment/load_customers.py` is supplied to `tools/load_customers.py`:
+  it writes `data/customers.json` into the table. Loading seed data teaches nothing.
 
 This spec has passed the authoring self-check — a first filter, not a proof. Only walking the
 course finds the rest.

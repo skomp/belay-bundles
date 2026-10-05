@@ -37,7 +37,7 @@ email actually produced. It never advances on "it works for me".
   needs Node.js.
 - **An AWS account you may create billable resources in**, with credentials configured for
   one account and one region. Installing the toolchain, configuring credentials and running
-  `cdk bootstrap` need the network and your account, so they are your work in lesson 01.
+  `cdk bootstrap` need the network and your account, so they are your work in lesson 00.
 - **An email mailbox you can send from and receive at**, and **a phone that can call a US
   number.** The course claims a US number on purpose (see `DESIGN.md`, *Instance choices*);
   from outside the US each test call is an international call.
