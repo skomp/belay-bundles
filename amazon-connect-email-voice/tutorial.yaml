@@ -143,3 +143,6 @@ supplies:
   - from: supplies/gitignore
     to: .gitignore
     describe: Keeps cdk.out, the virtualenv and editor droppings out of your history
+  - from: supplies/checks-toolchain.py
+    to: checks/toolchain.py
+    describe: The check that confirms Python, Node and your AWS credentials and region before you start
