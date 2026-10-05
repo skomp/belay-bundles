@@ -112,3 +112,7 @@ assumes:
 one_task_at_a_time: true
 solution_code: on-request-only
 advance_on: validated-evidence-only
+supplies:
+  - from: supplies/app.py
+    to: app.py
+    describe: The CDK entry point that creates your two stacks, ConnectCore and ConnectRouting, so lesson 00 starts at the instance and not at CDK boilerplate
