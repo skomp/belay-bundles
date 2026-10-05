@@ -1,0 +1,11 @@
+[
+  {"endpoint": "ada.fairweather@example.com", "customer_id": "C-1001", "tier": "gold", "display_name": "Ada-Fairweather"},
+  {"endpoint": "+12025550101", "customer_id": "C-1001", "tier": "gold", "display_name": "Ada-Fairweather"},
+  {"endpoint": "ben.marlowe@example.org", "customer_id": "C-1002", "tier": "standard", "display_name": "Ben-Marlowe"},
+  {"endpoint": "+12025550142", "customer_id": "C-1002", "tier": "standard", "display_name": "Ben-Marlowe"},
+  {"endpoint": "chiara.vance@example.net", "customer_id": "C-1003", "tier": "gold", "display_name": "Chiara-Vance"},
+  {"endpoint": "+13125550177", "customer_id": "C-1004", "tier": "standard", "display_name": "Dmitri-Holt"},
+  {"endpoint": "elena.brook@example.com", "customer_id": "C-1005", "tier": "standard", "display_name": "Elena-Brook"},
+  {"endpoint": "+12025550188", "customer_id": "C-1005", "tier": "standard", "display_name": "Elena-Brook"},
+  {"endpoint": "+16175550123", "customer_id": "C-1006", "tier": "gold", "display_name": "Farid-Lindqvist"}
+]

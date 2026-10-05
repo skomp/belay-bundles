@@ -46,8 +46,13 @@ code, out = run(["aws", "sts", "get-caller-identity", "--query", "Account", "--o
 required("aws credentials", code == 0, f"account {out}" if code == 0 else out)
 
 code, out = run(["aws", "configure", "get", "region"])
-required("aws region", code == 0 and bool(out), out if code == 0 and out else
-         "no region configured: set AWS_REGION or a region in your profile")
+if code is None:
+    region_detail = "aws CLI " + out
+elif code == 0 and out:
+    region_detail = out
+else:
+    region_detail = "no region configured: set AWS_REGION or a region in your profile"
+required("aws region", code == 0 and bool(out), region_detail)
 
 code, out = run(["cdk", "--version"])
 later("cdk cli", code == 0, out if code == 0 else "installed in lesson 00")
