@@ -20,6 +20,7 @@ lessons:
   - lessons/03-flow-logic-for-email.md
   - lessons/04-lambda-enrichment/LESSON.md
   - lessons/05-following-a-contact/LESSON.md
+  - lessons/06-a-phone-line.md
 
 workspace_kind: new-repository
 tutor_owned: [tutorial/STATE.md, tutorial/DESIGN.md]
