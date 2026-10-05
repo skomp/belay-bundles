@@ -125,3 +125,6 @@ supplies:
   - from: supplies/contact_centre/routing_stack.py
     to: contact_centre/routing_stack.py
     describe: "ConnectRouting, the stack you redeploy freely, still empty: users, hours, queues, routing profiles, flows and the Lambda go here"
+  - from: supplies/cdk.json
+    to: cdk.json
+    describe: CDK settings that point at app.py; nothing in this course changes it
