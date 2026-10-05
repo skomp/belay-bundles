@@ -1,6 +1,6 @@
 ---
 tutorial_id: amazon-connect-email-voice
-active_lesson: lessons/01-instance-and-first-agent.md
+active_lesson: lessons/00-instance-and-first-agent.md
 status: not-started
 updated: null
 ---

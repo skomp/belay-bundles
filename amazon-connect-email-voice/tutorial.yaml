@@ -13,7 +13,8 @@ aliases: [connect, aws-connect, call-centre, call-center, contact-center, ivr, e
 level: intermediate
 style: [project-driven, interactive]
 
-lessons: []
+lessons:
+  - lessons/00-instance-and-first-agent.md
 
 workspace_kind: new-repository
 tutor_owned: [tutorial/STATE.md, tutorial/DESIGN.md]
