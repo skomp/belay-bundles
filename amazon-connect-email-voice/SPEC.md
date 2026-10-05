@@ -36,7 +36,7 @@ which isolates what is channel-specific from what is shared.
 | 04 | `flow-logic-for-email` | make the flow decide something | contact attributes (system vs user); branching; setting the working queue; email-specific blocks such as an automatic acknowledgement | branching on an attribute that was never set, which falls through to the default branch silently; reaching for a voice-only block in an email flow; hard-coding a queue ARN into the exported JSON instead of a placeholder | an email whose subject or sender matches a rule is acknowledged automatically and routed to a different queue than one that does not, and the decision is visible on the contact's attributes | `#flow-round-trip` | `cdk-synth`, `pytest`, `email-routed` |
 | 05 | `lambda-enrichment` | let the flow know who is writing | invoking Lambda from a flow; the event Connect sends and the response it accepts; Connect's permission to invoke; timeouts and the error branch; DynamoDB lookup | forgetting the Lambda association, so the block fails at run time and not at deploy; returning a nested object Connect will not accept; no error branch, so a Lambda timeout strands the contact; keying the lookup on something only email has | a known sender's email is routed to the priority queue with customer attributes set by the Lambda; an unknown sender and a deliberately failing Lambda each take their own branch | `#lambda-contract`, `#flow-round-trip` | `cdk-synth`, `pytest`, `lambda-enriches` |
 | 06 | `following-a-contact` | explain where a contact went from the evidence, not from memory | contact search; contact records and attributes; flow logs in CloudWatch; Lambda logs correlated by contact id | reading the flow to guess what happened instead of reading the log of what did; enabling flow logging after the contact you wanted to inspect; trusting the agent workspace's view as the routing record | the learner is handed three contacts the supplied scenario script created and, for each, names the branch it took, the queue it reached and the attribute that decided it, citing the log line or record field | `#lambda-contract` | `contact-explained` |
-| 07 | `a-phone-line` | add voice as a second channel onto the routing that already exists | claiming a phone number; voice inbound flows; prompts; what is shared across channels (hours, queues, routing profiles) and what is not | claiming the number in the churning stack so a redeploy releases it; a region or country where the number type is not available; assuming the email flow can serve voice; forgetting the agent's routing profile has no voice concurrency | a call to the claimed number is answered by the voice flow, routed through the same hours and queue as email, and accepted by the agent in the workspace | `#stack-split`, `#instance-choices`, `#flow-round-trip` | `cdk-synth`, `pytest`, `call-routed` |
+| 07 | `a-phone-line` | add voice as a second channel onto the routing that already exists | claiming a phone number, and why its country is independent of the instance's region; voice inbound flows; prompts; what is shared across channels (hours, queues, routing profiles) and what is not | claiming the number in the churning stack so a redeploy releases it; reaching for a number in the learner's own country and stalling on a regulatory support case, when the course's US DID needs none; assuming the email flow can serve voice; forgetting the agent's routing profile has no voice concurrency | a call to the claimed number is answered by the voice flow, routed through the same hours and queue as email, and accepted by the agent in the workspace | `#stack-split`, `#instance-choices`, `#flow-round-trip` | `cdk-synth`, `pytest`, `call-routed` |
 | 08 | `voice-menu-and-caller-lookup` | give callers a menu and recognise them | Get customer input; DTMF; timeouts and the no-input branch; reusing the lesson 05 Lambda keyed on the caller's number | no timeout branch, so a silent caller loops or drops; writing a second Lambda for voice instead of honouring the contract; normalising the phone number in the flow instead of in one place | a known caller is greeted and routed to the priority queue by the same Lambda that serves email, a menu choice changes the queue, and a caller who presses nothing reaches the agent anyway | `#lambda-contract`, `#flow-round-trip` | `cdk-synth`, `pytest`, `lambda-enriches`, `call-routed` |
 | 09 | `one-agent-two-channels` | decide what an agent is offered when both channels are busy | routing-profile concurrency across voice and email; cross-channel behaviour; queue priority and delay; what the agent workspace shows for each | expecting an agent on a call to be offered nothing else, or everything else, without having configured it; priorities set on the queue when the intent was per channel; testing with one contact at a time and concluding it works | with a call and two emails waiting, the agent is offered them in the order the learner predicted before testing, and the learner explains the ordering from the routing profile | `#stack-split` | `cdk-synth`, `pytest`, `concurrency-observed` |
 
@@ -127,7 +127,11 @@ learner's explanation and a prediction made before the test, which no API call c
 The check scripts are supplied for the reason `pico-ps2-usb-adapter` gives: writing a Connect
 API reader is not what this course teaches, and a validator the learner wrote is a validator
 the learner can satisfy by weakening. The seed data uses fictional records only — no real
-personal data appears anywhere in the bundle.
+personal data appears anywhere in the bundle. To be recognised in lessons 05 and 08 the
+learner adds a record with their own email address and phone number to the table in their
+own account; the lesson says so, and says that this is their personal data in their account
+and is deleted at teardown. Their caller ID will usually be a non-US number in E.164 form,
+which is exactly the case `#lambda-contract`'s normalisation has to handle.
 
 **Not supplied, and deliberately so:** every construct, flow and Lambda. Installing the CDK
 CLI, creating the virtualenv, configuring AWS credentials and running `cdk bootstrap` need
@@ -140,14 +144,24 @@ progression, not a lesson and not a supply.
 
 The instance uses `CONNECT_MANAGED` identity, so users live in Connect and no directory or
 SAML provider is needed. One region is chosen in lesson 01 and used for everything; it must
-support both the email channel and claiming a phone number in the learner's country. The
-instance alias follows one convention (`<learner-prefix>-tutorail-cc`) because it is
-globally unique and becomes the email domain.
+support the email channel. The instance alias follows one convention
+(`<learner-prefix>-tutorail-cc`) because it is globally unique and becomes the email domain.
+
+**The phone number is a US direct-dial (DID) number, whatever the instance's region.** Since
+July 2023 an instance can claim numbers outside its own region with no opt-in, and a US DID is
+claimed self-service with no documents. Many countries are not like that: Germany, for one,
+can require a local address and identity documents through an AWS Support case before a
+number is issued. A course that told each learner to claim a number in their own country
+would stall a large share of them at lesson 07 for days, on paperwork that teaches nothing
+about Connect. So the instance region stays the learner's choice — an EU region is a
+reasonable one for a learner in the EU — and the number is always US. The cost a learner pays
+for that is an international call from their own phone for each test, named in *Coverage*.
 
 What breaks if a lesson contradicts it: identity mode and alias cannot change after creation,
 so a wrong choice means deleting the instance and every contact in it. A region without
-email or numbers stalls lesson 02 or 07 with no fix short of starting over. Resolved, with
-the region list itself an open question below.
+email stalls lesson 02 with no fix short of starting over. A lesson that assumes a local
+number reintroduces the regulatory stall. Resolved, with the region list itself an open
+question below.
 
 ### stack-split
 
@@ -195,7 +209,12 @@ Connect also rejects a nested response. Resolved.
 The course owes a learner, even where the build does not force them:
 
 - `cost and teardown` — what bills per message, per minute and per day of number rental;
-  what keeps billing after the course; releasing the number and deleting the instance
+  what keeps billing after the course; releasing the number and deleting the instance; and,
+  for a learner outside the US, that each test call to the US number is an international call
+  from their own phone
+- `phone number regulation` — why numbers in some countries need documents and a support
+  case, why the course claims a US number instead, and what a production contact centre in
+  such a country would have to do
 - `ses sandbox` — why replies to an unverified address fail in a new account, and the
   request that lifts it
 - `security profiles and least privilege` — what an agent profile should and should not
@@ -234,9 +253,13 @@ The title contains `": "` and is quoted, per the toolkit trap recorded in this r
 
 ## Open questions
 
-- **Which regions to recommend.** The email channel and phone-number claiming are not in
-  every Connect region, and number types differ by country. To be checked against the AWS
-  documentation when lesson 01 is written, not assumed.
+- **Which regions to recommend.** The email channel is not in every Connect region. To be
+  checked against the AWS documentation when lesson 01 is written, not assumed — including
+  whether claiming a US DID from each recommended region (an EU one in particular) works
+  self-service, which the July 2023 change suggests but this spec has not verified per region.
+- **A cheaper way to place the test call.** Whether a learner outside the US can reach the
+  number without an international call — for example a VoIP app with a US calling rate — is
+  worth a line in lesson 07 if a reliable option exists. Not required for the course to work.
 - **Whether enabling email on an instance is fully expressible in CloudFormation**, or needs
   one console or API step in lesson 02. `AWS::Connect::EmailAddress` exists; whether the
   instance's email domain is provisioned without a console action is to be verified when
