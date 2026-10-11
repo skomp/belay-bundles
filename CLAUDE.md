@@ -1,11 +1,11 @@
-# tutorail-bundles
+# belay-bundles
 
-A catalogue repository. Each subfolder is one self-contained tutorAIl bundle; see
+A catalogue repository. Each subfolder is one self-contained Belay bundle; see
 `README.md` for what a bundle is and how to add one.
 
 ## Where work is tracked
 
-**GitHub issues in `skomp/tutorail-bundles`.** Not a `TODO.md`. Every issue Claude creates
+**GitHub issues in `skomp/belay-bundles`.** Not a `TODO.md`. Every issue Claude creates
 carries the `created-by-claude` label, and issue bodies are written in ASD-STE100
 Simplified Technical English.
 
@@ -15,7 +15,7 @@ Simplified Technical English.
 with the bundle so it travels with a fork of the course. This repository does **not** use a
 shared `specs/` directory at the root.
 
-This overrides the `tutorail-authoring` create-interview default, which writes the spec to
+This overrides the `belay-authoring` create-interview default, which writes the spec to
 `specs/<bundle-id>.md` outside the bundle. That default is deliberately not followed here —
 a future session should keep the spec at `<bundle>/SPEC.md` and not "correct" it back. The
 one consequence to keep in mind: because the spec ships inside the bundle, the validator has
@@ -24,7 +24,7 @@ to tolerate `SPEC.md`, and learners receive it with the course. Decided 2026-09-
 ## Where course-quality audits go
 
 The findings go in an issue here, one issue per bundle. **The full report goes in
-`skomp/tutorail-authoring` under `docs/audits/`**, because that is where the rubric and the
+`skomp/belay-authoring` under `docs/audits/`**, because that is where the rubric and the
 `course-quality` skill live and the report has to be readable beside them.
 
 - `docs/audits/2026-09-12-course-quality-first-run.md` — the first run, three courses. Its
@@ -32,7 +32,7 @@ The findings go in an issue here, one issue per bundle. **The full report goes i
 - `docs/audits/2026-09-13-course-quality-all-bundles.md` — all five bundles, with the
   per-course reports in `docs/audits/2026-09-13/`.
 
-Audits propose and never change a bundle. Applying a proposal is the `tutorail-authoring`
+Audits propose and never change a bundle. Applying a proposal is the `belay-authoring`
 skill's job, after the author agrees.
 
 ## Build a tutorial in a worktree, not in this checkout
@@ -67,40 +67,40 @@ Two consequences worth knowing before you start:
 
 ## This session owns this repository, and hands the rest over
 
-A session here handles **`skomp/tutorail-bundles`** — the bundles and their teaching
+A session here handles **`skomp/belay-bundles`** — the bundles and their teaching
 content. Two other repositories carry work that surfaces here and cannot be fixed here:
 
 | Repository | What belongs to it |
 |---|---|
-| `skomp/tutorail-authoring` | the authoring toolkit and the `course-quality` rubric: `supplies.py`, `catalog.py`, `audit.py`, the validator, and every audit report under `docs/audits/` |
-| `skomp/tutorAIl` | the runner: how a lesson is presented, how an offer is made, anything drawn on the learner's terminal |
+| `skomp/belay-authoring` | the authoring toolkit and the `course-quality` rubric: `supplies.py`, `catalog.py`, `audit.py`, the validator, and every audit report under `docs/audits/` |
+| `skomp/belay` | the runner: how a lesson is presented, how an offer is made, anything drawn on the learner's terminal |
 
 **A failing validation, a tooling defect or a runner change gets filed in the repository
 that has to fix it**, never here and never only in chat. Then check `ListAgents` for a
 session holding that repository and message it: one message, each issue named with its
-repo (`tutorail-authoring#11`, never a bare `#11`), what it is, and what is still pending.
+repo (`belay-authoring#11`, never a bare `#11`), what it is, and what is still pending.
 If no session holds it, file anyway and say so in the report. The general form of this rule
 is in the global `parallel-sessions` skill, section 4a.
 
-Known sessions at the time of writing: `tutorail-authoring-db` holds
-`skomp/tutorail-authoring`, and `tutorail-8c` holds `skomp/tutorAIl` — the plugin, the
+Known sessions at the time of writing: `belay-authoring-db` holds
+`skomp/belay-authoring`, and `belay-8c` holds `skomp/belay` — the plugin, the
 bundle format contract, the validator, the catalogue and discovery. The authoring session
 shares that checkout, so name which of your commits there are still local.
 
 An issue with a half on each side gets **two issues that point at each other**, not one:
-`skomp/tutorail-bundles#4` and `skomp/tutorAIl#23` are the worked example. Say in the
+`skomp/belay-bundles#4` and `skomp/belay#23` are the worked example. Say in the
 runner-side issue what the bundle supplies, and what the runner must do when the bundle
 supplies nothing.
 
 **A cross-repository discussion lives in the issue, not in the messages.** Told on
-2026-09-13, for `skomp/tutorAIl#25`: post the answer on the issue, then ping the session
+2026-09-13, for `skomp/belay#25`: post the answer on the issue, then ping the session
 that owns it and ask for its update; it answers on the issue and pings back; repeat. The
 ping is a doorbell and the issue is the record, so a reader who was in neither session can
 follow the whole argument afterwards. Answer every ping — the turn is explicit, and a
 discussion where both sides wait is indistinguishable from one that is finished.
 
 A ruling only the author can make — for example whether a project skeleton counts as toil
-(`tutorail-authoring#11`) — stays pending in writing until the author makes it. Do not
+(`belay-authoring#11`) — stays pending in writing until the author makes it. Do not
 pre-empt it, and pass it to the session that owns the file it changes.
 
 ## Three toolkit traps that cost this repository time
@@ -114,9 +114,9 @@ repository that must fix it, and each will keep happening until it is.
 validator does **not** catch it and reports PASS; the authoring toolkit's own `yamlite`
 reader *does* reject it, so the toolkit writes a file it cannot read back. Two of this
 bundle's 26 titles were affected, and `rust-automaton-db` was bitten by the same thing in
-`skomp/tutorail-bundles#13`. **Quote any title containing a colon**, and after authoring a
+`skomp/belay-bundles#13`. **Quote any title containing a colon**, and after authoring a
 course, parse every lesson's frontmatter with a real YAML parser rather than trusting the
-validator. Filed as `tutorail-authoring#26` and `tutorAIl#53`.
+validator. Filed as `belay-authoring#26` and `belay#53`.
 
 **A flow collection wrapped across two lines does not parse.** The restricted YAML reader
 takes `aliases: [a, b,` + newline + `c]` as a syntax error, so a long `aliases:` or
@@ -127,7 +127,7 @@ names a line number and not the cause.
 repair.** A lesson-folder file that no `LESSON.md` names is a check 6 finding; declaring it
 as a lesson-scope supply clears that finding; but the tool checks validity *before* its own
 edit and refuses. The way out is the format's other remedy — have the `LESSON.md` name its
-material file — and then declare it. Filed as `tutorail-authoring#28`.
+material file — and then declare it. Filed as `belay-authoring#28`.
 
 ## A total is not a grade
 
