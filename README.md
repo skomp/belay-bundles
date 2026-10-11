@@ -1,11 +1,11 @@
-# tutorail-bundles
+# belay-bundles
 
-Tutorial bundles for [tutorAIl](https://github.com/skomp/tutorAIl).
+Tutorial bundles for [Belay](https://github.com/skomp/belay).
 
 Each subfolder is one self-contained bundle.
 
 ```
-tutorail-bundles/
+belay-bundles/
 ├── durable-event-broker/                 # one bundle
 ├── pico-ps2-usb-adapter/
 ├── portable-bytebeat-wav/
@@ -36,8 +36,8 @@ The mechanical rule:
 ## Adding a bundle
 
 1. Create a subfolder named after the bundle `id`.
-2. Follow the authoring contract: `skills/tutorail/references/bundle-format.md`
-   in the tutorAIl repository.
+2. Follow the authoring contract: `skills/belay/references/bundle-format.md`
+   in the Belay repository.
 3. Validate it before committing.
 4. Register it in a catalogue so a runner can find it.
 

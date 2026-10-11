@@ -488,9 +488,9 @@ choices the learner makes during the course, not gaps in the design.
 ## Revision note — 2026-09-29, after the course-quality audit
 
 The bundle was built from this spec, audited the same day, and then both were revised
-together. The audit report is in `skomp/tutorail-authoring` at
+together. The audit report is in `skomp/belay-authoring` at
 `docs/audits/2026-09-29-pico-ps2-usb-adapter.md`; its findings are
-`skomp/tutorail-bundles#28`. The author ruled on the three that were genuinely open.
+`skomp/belay-bundles#28`. The author ruled on the three that were genuinely open.
 
 **What changed in this spec, and why.**
 

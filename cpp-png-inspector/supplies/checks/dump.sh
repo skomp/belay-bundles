@@ -41,7 +41,7 @@ $errs"
       printf '%s\n' "$out" | grep -q 'Software' \
         || die "the tEXt chunk's keyword 'Software' does not appear in the output.
       The chunk is listed, so it is being walked past rather than read."
-      printf '%s\n' "$out" | grep -q 'tutorAIl course asset' \
+      printf '%s\n' "$out" | grep -q 'Belay course asset' \
         || die "the tEXt chunk's value does not appear in the output.
       Note the value is NOT null-terminated: it runs to the end of the chunk."
     fi
