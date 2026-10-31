@@ -38,8 +38,20 @@ The mechanical rule:
 1. Create a subfolder named after the bundle `id`.
 2. Follow the authoring contract: `skills/belay/references/bundle-format.md`
    in the Belay repository.
-3. Validate it before committing.
-4. Register it in a catalogue so a runner can find it.
+3. Give it a quoted `version` (`"1.0"` for a new course), and the same
+   `report` block every course here carries, so that a learner's defect report
+   comes to this repository's issues whichever catalogue offered the course:
+
+   ```yaml
+   report:
+     url: https://github.com/skomp/belay-bundles/issues/new
+     prefill: github
+   ```
+
+   Move `version` whenever you change a course; the format says whether the
+   change is MAJOR or MINOR.
+4. Validate it before committing.
+5. Register it in a catalogue so a runner can find it.
 
 ## Bundles
 

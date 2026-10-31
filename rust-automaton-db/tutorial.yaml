@@ -1,5 +1,9 @@
 bundle_format: 1
 id: rust-automaton-db
+version: "1.1"
+report:
+  url: https://github.com/skomp/belay-bundles/issues/new
+  prefill: github
 title: Learn Rust by Building AutomatonDB
 description: >
   Project-driven Rust taught by building a serious automaton-native,
